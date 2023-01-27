@@ -63,15 +63,15 @@ int main()
     struct thin_file qfiles[array_size];
     memcpy(qfiles, files, sizeof(files));
 
-    // printf("heapsort----------------------------------------------------------------------\n");
-    // int ret = myheapsort(&files, array_size, sizeof(files[0]), cmp_qsort);
-    // if (ret != 0)
-    // {
-    //     fprintf(stderr, "heapsort abort ret is non zero: %d %d\n", ret, errno);
-    //     return ret;
-    // }
-    // for (int i = 0; i < array_size; i++)
-    //     printf("%s\n", files[i].name);
+    printf("heapsort----------------------------------------------------------------------\n");
+    int ret = myheapsort(&files, array_size, sizeof(files[0]), cmp_qsort);
+    if (ret != 0)
+    {
+        fprintf(stderr, "heapsort abort ret is non zero: %d %d\n", ret, errno);
+        return ret;
+    }
+    for (int i = 0; i < array_size; i++)
+        printf("%s\n", files[i].name);
 
     printf("qsort----------------------------------------------------------------------\n");
     qsort(&qfiles, array_size, sizeof(qfiles[0]), cmp_qsort);

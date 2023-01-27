@@ -31,11 +31,11 @@ func main() {
 	qarches := make([]lmacho.FatArchHeader, len(arches))
 	copy(qarches, arches)
 
-	// fmt.Printf("heapsort----------------------------------------------------------------------\n")
-	// qsort.HeapSort(arches, cmpFunc)
-	// for _, a := range arches {
-	// 	fmt.Println(lmacho.ToCpuString(a.Cpu, a.SubCpu))
-	// }
+	fmt.Printf("heapsort----------------------------------------------------------------------\n")
+	qsort.HeapSort(arches, cmpFunc)
+	for _, a := range arches {
+		fmt.Println(lmacho.ToCpuString(a.Cpu, a.SubCpu))
+	}
 
 	fmt.Printf("qsort----------------------------------------------------------------------\n")
 	sort(qarches, false)

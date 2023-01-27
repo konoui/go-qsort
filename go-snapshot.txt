@@ -1,5 +1,25 @@
+heapsort----------------------------------------------------------------------
+myheapsort is called
+arm64_32
+armv7em
+i386
+armv6m
+armv7m
+x86_64h
+x86_64
+armv7s
+armv7k
+armv4t
+arm
+armv6
+armv8m
+armv7
+armv7f
+arm64
+arm64v8
+arm64e
 qsort----------------------------------------------------------------------
-myqsort is called
+myqsort is called 8
 num 18
 pl i386
 pm armv7k

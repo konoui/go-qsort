@@ -25,7 +25,7 @@ func dump[T any](list []T, off int, num int) {
 }
 
 func qsort[T any](list []T, off int, num int, cmp func(T, T) int, depthLimit int) {
-	fmt.Printf("myqsort is called\n")
+	fmt.Printf("myqsort is called %d\n", depthLimit)
 loop:
 	swapCnt := 0
 	fmt.Printf("num %d\n", num)
@@ -171,7 +171,7 @@ func swap[T any](x []T, i, j int) {
 }
 
 func depth(n int) int {
-	return 2 * (n - 1)
+	return 2 * (fls(n) - 1)
 }
 
 func med3[T any](list []T, a, b, c int, f func(i, j T) int) int {
@@ -194,6 +194,22 @@ func med3[T any](list []T, a, b, c int, f func(i, j T) int) int {
 				return c
 			}
 		}
+	}
+}
+
+func fls(v int) int {
+	if v == 0 {
+		return 0
+	}
+
+	idx := 1
+	tmp := v
+	for {
+		tmp >>= 1
+		if tmp == 0 {
+			return idx
+		}
+		idx++
 	}
 }
 

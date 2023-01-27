@@ -67,42 +67,8 @@ swapfunc(char *a, char *b, size_t n, int swaptype_long, int swaptype_int)
 static inline char *
 med3(char *a, char *b, char *c, cmp_t *cmp, void *thunk)
 {
-    if (CMP(thunk, a, b) < 0)
-    {
-        if (CMP(thunk, b, c) < 0)
-        {
-            return b;
-        }
-        else
-        {
-            if (CMP(thunk, a, c) < 0)
-            {
-                return c;
-            }
-            else
-            {
-                return a;
-            }
-        }
-    }
-    else
-    {
-        if (CMP(thunk, b, c) > 0)
-        {
-            return b;
-        }
-        else
-        {
-            if (CMP(thunk, a, c) < 0)
-            {
-                return a;
-            }
-            else
-            {
-                return c;
-            }
-        }
-    }
+    return CMP(thunk, a, b) < 0 ? (CMP(thunk, b, c) < 0 ? b : (CMP(thunk, a, c) < 0 ? c : a))
+                                : (CMP(thunk, b, c) > 0 ? b : (CMP(thunk, a, c) < 0 ? a : c));
 }
 
 #define DEPTH(x) (2 * (fls((int)(x)) - 1))
@@ -155,7 +121,7 @@ _qsort(void *a, size_t n, size_t es, cmp_t *cmp, int depth_limit)
     size_t d1, d2;
     int cmp_result;
     int swaptype_long, swaptype_int, swap_cnt;
-    printf("myqsort is called\n");
+    printf("myqsort is called %d\n", depth_limit);
 loop:
     // SWAPINIT(long, a, es);
     // SWAPINIT(int, a, es);
@@ -340,7 +306,6 @@ nevermind:
 
 void qsort(void *a, size_t n, size_t es, cmp_t *cmp)
 {
-    fprintf(stderr, "myqsort is called\n");
     _qsort(a, n, es,
            cmp, DEPTH(n));
 }
