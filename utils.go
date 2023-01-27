@@ -33,3 +33,18 @@ func cpu[T any](v T) string {
 	f := cast(v)
 	return lmacho.ToCpuString(f.Cpu, f.SubCpu)
 }
+
+func CmpFunc(i, j lmacho.FatArchHeader) int {
+	if i.Cpu == j.Cpu {
+		return int((i.SubCpu & ^lmacho.MaskSubCpuType)) - int((j.SubCpu & ^lmacho.MaskSubCpuType))
+	}
+
+	if i.Cpu == lmacho.CpuTypeArm64 {
+		return 1
+	}
+	if j.Cpu == lmacho.CpuTypeArm64 {
+		return -1
+	}
+
+	return int(i.Align) - int(j.Align)
+}

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/konoui/go-qsort"
-	"github.com/konoui/lipo/pkg/lipo/cgo_qsort"
+	"github.com/konoui/go-qsort/cgo"
 	"github.com/konoui/lipo/pkg/lipo/lmacho"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	copy(qarches, arches)
 
 	fmt.Printf("heapsort----------------------------------------------------------------------\n")
-	qsort.HeapSort(arches, cmpFunc)
+	qsort.HeapSort(arches, qsort.CmpFunc)
 	for _, a := range arches {
 		fmt.Println(lmacho.ToCpuString(a.Cpu, a.SubCpu))
 	}
@@ -44,14 +44,14 @@ func main() {
 	}
 }
 
-func sort(inputs []lmacho.FatArchHeader, cgo bool) {
-	if cgo {
-		cgo_qsort.Slice(inputs, func(a, b int) bool {
-			return cmpFunc(inputs[a], inputs[b]) < 0
+func sort(inputs []lmacho.FatArchHeader, cqsort bool) {
+	if cqsort {
+		cgo.Slice(inputs, func(a, b int) int {
+			return qsort.CmpFunc(inputs[a], inputs[b])
 		})
 		return
 	}
-	qsort.Slice(inputs, cmpFunc)
+	qsort.Slice(inputs, qsort.CmpFunc)
 }
 
 func printCpus() {
@@ -60,19 +60,4 @@ func printCpus() {
 		ret = append(ret, `"`+l+`"`)
 	}
 	fmt.Fprintln(os.Stderr, strings.Join(ret, ",")+",")
-}
-
-func cmpFunc(i, j lmacho.FatArchHeader) int {
-	if i.Cpu == j.Cpu {
-		return int((i.SubCpu & ^lmacho.MaskSubCpuType)) - int((j.SubCpu & ^lmacho.MaskSubCpuType))
-	}
-
-	if i.Cpu == lmacho.CpuTypeArm64 {
-		return 1
-	}
-	if j.Cpu == lmacho.CpuTypeArm64 {
-		return -1
-	}
-
-	return int(i.Align) - int(j.Align)
 }

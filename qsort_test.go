@@ -11,21 +11,6 @@ import (
 	"github.com/konoui/lipo/pkg/lipo/lmacho"
 )
 
-func cmpFunc(i, j lmacho.FatArchHeader) int {
-	if i.Cpu == j.Cpu {
-		return int((i.SubCpu & ^lmacho.MaskSubCpuType)) - int((j.SubCpu & ^lmacho.MaskSubCpuType))
-	}
-
-	if i.Cpu == lmacho.CpuTypeArm64 {
-		return 1
-	}
-	if j.Cpu == lmacho.CpuTypeArm64 {
-		return -1
-	}
-
-	return int(i.Align) - int(j.Align)
-}
-
 func Test_qsort(t *testing.T) {
 	tests := []struct {
 		name string
@@ -53,10 +38,10 @@ func Test_qsort(t *testing.T) {
 				copy(want, in)
 				copy(got, in)
 				cgo.Slice(want, func(a, b int) int {
-					return cmpFunc(want[a], want[b])
+					return qsort.CmpFunc(want[a], want[b])
 				})
 
-				qsort.Slice(got, cmpFunc)
+				qsort.Slice(got, qsort.CmpFunc)
 				if !reflect.DeepEqual(want, got) {
 					t.Errorf("\nwant: %v\ngot: %v", names(want), names(got))
 				}
@@ -73,10 +58,10 @@ func Test_qsortOver40(t *testing.T) {
 		copy(want, in)
 		copy(got, in)
 		cgo.Slice(want, func(a, b int) int {
-			return cmpFunc(want[a], want[b])
+			return qsort.CmpFunc(want[a], want[b])
 		})
 
-		qsort.Slice(got, cmpFunc)
+		qsort.Slice(got, qsort.CmpFunc)
 		if !reflect.DeepEqual(want, got) {
 			t.Errorf("\nwant: %v\ngot: %v", names(want), names(got))
 		}
