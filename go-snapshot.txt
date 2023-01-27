@@ -1,0 +1,64 @@
+qsort----------------------------------------------------------------------
+myqsort is called
+num 18
+pl i386
+pm armv7k
+pn arm64_32
+med3 pm arm64_32
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc bp++
+pb <= pc cmp_result=0
+pb <= pc pc--
+pb <= pc pc--
+pb <= pc pc--
+pb <= pc pc--
+d2 > 1 goto loop
+num 3
+switch to isort
+dump-----
+arm64
+arm64v8
+arm64e
+dump-----
+arm64_32
+x86_64
+x86_64h
+arm
+armv4t
+armv6
+armv7
+armv7f
+armv7s
+armv7k
+armv6m
+armv7m
+armv7em
+armv8m
+i386
+arm64
+arm64v8
+arm64e
