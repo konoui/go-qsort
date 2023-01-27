@@ -20,3 +20,6 @@ jobs:
     - name: snapshot test
       run: |
         make diff
+    - name: extract
+      run: |
+        ./extract.sh

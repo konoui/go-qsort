@@ -1,9 +1,6 @@
 package qsort
 
-import "fmt"
-
 func HeapSort[T any](list []T, cmp func(T, T) int) {
-	fmt.Printf("myheapsort is called\n")
 	heapSort(list, 0, len(list), cmp)
 }
 

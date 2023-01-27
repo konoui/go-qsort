@@ -1,45 +1,24 @@
 package qsort
 
-import (
-	"fmt"
-	"io"
-	"os"
-
-	"github.com/konoui/lipo/pkg/lipo/lmacho"
-)
-
-var (
-	Out io.Writer = os.Stdout
-)
-
 // https://github.com/apple-oss-distributions/Libc/blob/Libc-1534.40.2/stdlib/FreeBSD/qsort.c
 func Slice[T any](x []T, cmpFunc func(i, j T) int) {
 	qsort(x, 0, len(x), cmpFunc, depth(len(x)))
 }
 
-func dump[T any](list []T, off int, num int) {
-	fmt.Fprintf(Out, "dump-----\n")
-	for i := off; i < len(list); i++ {
-		v := any(list[i]).(lmacho.FatArchHeader)
-		fmt.Fprintf(Out, "%v\n", lmacho.ToCpuString(v.Cpu, v.SubCpu))
-	}
-	fmt.Fprintf(Out, "dump-----\n")
-}
-
 func qsort[T any](list []T, off int, num int, cmp func(T, T) int, depthLimit int) {
-	fmt.Fprintf(Out, "myqsort is called %d\n", depthLimit)
+	utilPrintf("myqsort is called %d\n", depthLimit)
 loop:
 	swapCnt := 0
-	fmt.Fprintf(Out, "num %d\n", num)
+	utilPrintf("num %d\n", num)
 	if depthLimit <= 0 {
-		fmt.Fprintf(Out, "switch to myheapsort\n")
+		utilPrintf("switch to myheapsort\n")
 		heapSort(list, off, num, cmp)
 		return
 	}
 	depthLimit--
 
 	if num <= 7 {
-		fmt.Fprintf(Out, "switch to isort\n")
+		utilPrintf("switch to isort\n")
 		iSort(list, off, num, cmp, 0)
 		dump(list, off, num)
 		return
@@ -52,16 +31,12 @@ loop:
 	if num > 40 {
 		panic(">40")
 	}
-	t := any(list[pl]).(lmacho.FatArchHeader)
-	fmt.Fprintf(Out, "pl %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
-	t = any(list[pm]).(lmacho.FatArchHeader)
-	fmt.Fprintf(Out, "pm %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
-	t = any(list[pn]).(lmacho.FatArchHeader)
-	fmt.Fprintf(Out, "pn %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
+	utilPrintf("pl %s\n", cpu(list[pl]))
+	utilPrintf("pm %s\n", cpu(list[pm]))
+	utilPrintf("pn %s\n", cpu(list[pn]))
 
 	pm = med3(list, pl, pm, pn, cmp)
-	t = any(list[pm]).(lmacho.FatArchHeader)
-	fmt.Fprintf(Out, "med3 pm %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
+	utilPrintf("med3 pm %s\n", cpu(list[pm]))
 
 	swap(list, off, pm)
 	pa := off + 1
@@ -73,12 +48,12 @@ loop:
 			ret := cmp(list[pb], list[off])
 			if ret <= 0 {
 				if ret == 0 {
-					fmt.Fprintf(Out, "pb <= pc cmp_result=0\n")
+					utilPrintf("pb <= pc cmp_result=0\n")
 					swapCnt = 1
 					swap(list, pa, pb)
 					pa++
 				}
-				fmt.Fprintf(Out, "pb <= pc bp++\n")
+				utilPrintf("pb <= pc bp++\n")
 				pb++
 			} else {
 				break
@@ -88,12 +63,12 @@ loop:
 			ret := cmp(list[pc], list[off])
 			if ret >= 0 {
 				if ret == 0 {
-					fmt.Fprintf(Out, "pb <= pc cmp_result=0\n")
+					utilPrintf("pb <= pc cmp_result=0\n")
 					swapCnt = 1
 					swap(list, pc, pd)
 					pd--
 				}
-				fmt.Fprintf(Out, "pb <= pc pc--\n")
+				utilPrintf("pb <= pc pc--\n")
 				pc--
 			} else {
 				break
@@ -119,10 +94,10 @@ loop:
 	if swapCnt == 0 {
 		r := 1 + num/4
 		if !iSort(list, off, num, cmp, r) {
-			fmt.Fprintf(Out, "goto nevermind;\n")
+			utilPrintf("goto nevermind;\n")
 			goto nevermind
 		}
-		fmt.Fprintf(Out, "return swap_cnt=0 isort\n")
+		utilPrintf("return swap_cnt=0 isort\n")
 		return
 	}
 
@@ -131,23 +106,23 @@ nevermind:
 	d2 := pd - pc
 	if d1 <= d2 {
 		if d1 > 1 {
-			fmt.Fprintf(Out, "d1 > 1 do qsort\n")
+			utilPrintf("d1 > 1 do qsort\n")
 			qsort(list, off, d1, cmp, depthLimit)
 		}
 		if d2 > 1 {
 			off = pn - d2
 			num = d2
-			fmt.Fprintf(Out, "d2 > 1 goto loop\n")
+			utilPrintf("d2 > 1 goto loop\n")
 			goto loop
 		}
 	} else {
 		if d2 > 1 {
-			fmt.Fprintf(Out, "d2 > 1 do qsort\n")
+			utilPrintf("d2 > 1 do qsort\n")
 			qsort(list, pn-d2, d2, cmp, depthLimit)
 		}
 		if d1 > 1 {
 			num = d1
-			fmt.Fprintf(Out, "d1 > 1 goto loop\n")
+			utilPrintf("d1 > 1 goto loop\n")
 			goto loop
 		}
 	}

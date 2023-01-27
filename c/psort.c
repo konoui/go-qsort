@@ -32,7 +32,6 @@ size_t nmemb, size;
 int (*compar)(const void *, const void *);
 {
     fprintf(stderr, "myheapsort is called\n");
-    printf("myheapsort is called\n");
     size_t cnt,
         i, j, l;
     char tmp, *tmp1, *tmp2;
