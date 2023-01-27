@@ -16,7 +16,9 @@ func heapSort[T any](list []T, off, num int, cmp func(T, T) int) {
 		j := i * 2
 		for ; double(i, &j) <= num; i = j {
 			p := base + j
+			//fmt.Printf("loop1: %d %d %d\n", l, i, j)
 			if j < num && cmp(list[p], list[p+1]) < 0 {
+				//fmt.Printf("loop1-swap: %d %d %d\n", l, i, j)
 				p++
 				j++
 			}
@@ -38,7 +40,9 @@ func heapSort[T any](list []T, off, num int, cmp func(T, T) int) {
 		j := i * 2
 		for ; double(i, &j) <= num; i = j {
 			p := base + j
+			//fmt.Printf("loop2: %d %d %d\n", num, i, j)
 			if j < num && cmp(list[p], list[p+1]) < 0 {
+				//fmt.Printf("loop2-swap: %d %d %d\n", num, i, j)
 				p++
 				j++
 			}
@@ -51,7 +55,9 @@ func heapSort[T any](list []T, off, num int, cmp func(T, T) int) {
 			i = j / 2
 			p := base + j
 			t := base + i
+			//fmt.Printf("loop3: %d %d %d\n", num, i, j)
 			if j == 1 || cmp(k, list[t]) < 0 {
+				//fmt.Printf("loop3-swap: %d %d %d\n", num, i, j)
 				list[p] = k // _copy
 				break
 			}
