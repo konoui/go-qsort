@@ -1,68 +1,116 @@
-package qsort
+package qsort_test
 
 import (
+	"io"
+	"math/rand"
 	"reflect"
 	"testing"
+
+	"github.com/konoui/go-qsort"
+	"github.com/konoui/go-qsort/cgo"
+	"github.com/konoui/lipo/pkg/lipo/lmacho"
 )
 
-func Test_Slice(t *testing.T) {
+func cmpFunc(i, j lmacho.FatArchHeader) int {
+	if i.Cpu == j.Cpu {
+		return int((i.SubCpu & ^lmacho.MaskSubCpuType)) - int((j.SubCpu & ^lmacho.MaskSubCpuType))
+	}
+
+	if i.Cpu == lmacho.CpuTypeArm64 {
+		return 1
+	}
+	if j.Cpu == lmacho.CpuTypeArm64 {
+		return -1
+	}
+
+	return int(i.Align) - int(j.Align)
+}
+
+func Test_qsort(t *testing.T) {
 	tests := []struct {
-		name      string
-		input     []int
-		noShuffle bool
-		heap      bool
+		name string
+		num  int
 	}{
 		{
-			name:  "len <= 7",
-			input: makeInt(0, 7),
+			name: "len <= 7",
+			num:  4,
 		},
 		{
-			name:  "7 <= len < 40",
-			input: makeInt(0, 9),
-		},
-		// {
-		// 	name:      "40 < len",
-		// 	input:     makeInt(0, 43),
-		// 	noShuffle: true,
-		// },
-		{
-			name:  "heap: len <= 7",
-			input: makeInt(0, 7),
-			heap:  true,
-		},
-		{
-			name:  "heap: 7 <= len < 40",
-			input: makeInt(0, 9),
-			heap:  true,
+			name: "7 < len < 40",
+			num:  9,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			want := make([]int, len(tt.input))
-			copy(want, tt.input)
+			// turn off debug output
+			qsort.Out = io.Discard
 
-			inputs := [][]int{tt.input}
-			if !tt.noShuffle {
-				inputs = shuffle(tt.input)
-			}
-			for _, values := range inputs {
-				if tt.heap {
-					HeapSort(values, func(a, b int) int { return a - b })
-				} else {
-					Slice(values, func(a, b int) int { return a - b })
-				}
-				if !reflect.DeepEqual(want, values) {
-					t.Errorf("want: %v, got: %v", want, values)
+			fatArches := shuffle(makeFatArches(t, tt.num))
+			t.Logf("%d test data\n", len(fatArches))
+			for _, in := range fatArches {
+				want := make([]lmacho.FatArchHeader, len(in))
+				got := make([]lmacho.FatArchHeader, len(in))
+				copy(want, in)
+				copy(got, in)
+				cgo.Slice(want, func(a, b int) int {
+					return cmpFunc(want[a], want[b])
+				})
+
+				qsort.Slice(got, cmpFunc)
+				if !reflect.DeepEqual(want, got) {
+					t.Errorf("\nwant: %v\ngot: %v", names(want), names(got))
 				}
 			}
 		})
 	}
 }
 
-func makeInt(start, num int) []int {
-	ret := make([]int, 0, num)
-	for i := start; i < start+num; i++ {
-		ret = append(ret, i)
+func newFatArch(t *testing.T, arch string, align uint32) lmacho.FatArchHeader {
+	cpu, sub, ok := lmacho.ToCpu(arch)
+	if !ok {
+		t.Fatalf("found no cpu %s\n", arch)
+	}
+	return lmacho.FatArchHeader{
+		Cpu:    cpu,
+		SubCpu: sub,
+		Align:  align,
+	}
+}
+
+var cpuNames = func() []string {
+	ret := []string{}
+	for _, v := range lmacho.CpuNames() {
+		// apple lipo does not support them
+		if v == "armv8m" || v == "arm64_32" {
+			continue
+		}
+		ret = append(ret, v)
+	}
+	return ret
+}
+
+func names(values []lmacho.FatArchHeader) []string {
+	ret := make([]string, len(values))
+	for i, v := range values {
+		ret[i] = lmacho.ToCpuString(v.Cpu, v.SubCpu)
+	}
+	return ret
+}
+
+func makeFatArches(t *testing.T, num int) []lmacho.FatArchHeader {
+	arches := cpuNames()
+	if num > len(arches) {
+		for {
+			if len(arches) > num {
+				break
+			}
+			arches = append(arches, cpuNames()...)
+		}
+	}
+
+	ret := make([]lmacho.FatArchHeader, num)
+	for i := 0; i < num; i++ {
+		ret[i] = newFatArch(t, arches[i], uint32(pickRandom(3)))
 	}
 	return ret
 }
@@ -92,4 +140,8 @@ func perm[T any](a []T, f func([]T), i int) {
 		perm(a, f, i+1)
 		a[i], a[j] = a[j], a[i]
 	}
+}
+
+func pickRandom(i int) int {
+	return rand.Intn(i)
 }

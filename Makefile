@@ -12,3 +12,7 @@ diff: run
 	@(echo "---------------------------------------")
 	@(diff $(BASE_DIR)/go-snapshot.txt $(BASE_DIR)/c-snapshot.txt)
 	@(echo "---------------------------------------")
+
+cover:
+	go test -coverprofile=cover.out ./...
+	go tool cover -html=cover.out -o cover.html
