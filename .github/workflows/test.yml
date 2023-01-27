@@ -1,0 +1,22 @@
+name: test
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: set up go
+      uses: actions/setup-go@v3
+      with:
+        go-version-file: "go.mod"
+    - name: test
+      run: |
+        sw_vers
+        make test
+    - name: snapshot test
+      run: |
+        make diff
