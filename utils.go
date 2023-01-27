@@ -25,11 +25,11 @@ func utilDump[T any](list []T, off int, num int) {
 	fmt.Fprintf(Out, "dump-----\n")
 }
 
-func cast[T any](v T) lmacho.FatArchHeader {
-	return any(v).(lmacho.FatArchHeader)
+func cast(v any) lmacho.FatArchHeader {
+	return v.(lmacho.FatArchHeader)
 }
 
-func cpu[T any](v T) string {
+func cpu(v any) string {
 	f := cast(v)
 	return lmacho.ToCpuString(f.Cpu, f.SubCpu)
 }
