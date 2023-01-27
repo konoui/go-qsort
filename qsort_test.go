@@ -65,6 +65,24 @@ func Test_qsort(t *testing.T) {
 	}
 }
 
+func Test_qsortOver40(t *testing.T) {
+	t.Run("over40-1", func(t *testing.T) {
+		in := makeFatArches(t, 200)
+		want := make([]lmacho.FatArchHeader, len(in))
+		got := make([]lmacho.FatArchHeader, len(in))
+		copy(want, in)
+		copy(got, in)
+		cgo.Slice(want, func(a, b int) int {
+			return cmpFunc(want[a], want[b])
+		})
+
+		qsort.Slice(got, cmpFunc)
+		if !reflect.DeepEqual(want, got) {
+			t.Errorf("\nwant: %v\ngot: %v", names(want), names(got))
+		}
+	})
+}
+
 func newFatArch(t *testing.T, arch string, align uint32) lmacho.FatArchHeader {
 	cpu, sub, ok := lmacho.ToCpu(arch)
 	if !ok {

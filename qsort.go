@@ -29,7 +29,11 @@ loop:
 	pn := off + num - 1
 
 	if num > 40 {
-		panic(">40")
+		d := (num / 8)
+		pl = med3(list, pl, pl+d, pl+2*d, cmp)
+		pm = med3(list, pm-d, pm, pm+d, cmp)
+		pn = med3(list, pn-2*d, pn-d, pn, cmp)
+		utilPrintf("over 40\n")
 	}
 	utilPrintf("pl %s\n", cpu(list[pl]))
 	utilPrintf("pm %s\n", cpu(list[pm]))

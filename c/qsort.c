@@ -164,6 +164,7 @@ loop:
         pl = med3(pl, pl + d, pl + 2 * d, cmp, thunk);
         pm = med3(pm - d, pm, pm + d, cmp, thunk);
         pn = med3(pn - 2 * d, pn - d, pn, cmp, thunk);
+        printf("over 40\n");
     }
     struct thin_file *t;
     t = pl;

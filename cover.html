@@ -57,7 +57,9 @@
 				
 				<option value="file0">github.com/konoui/go-qsort/heapsort.go (0.0%)</option>
 				
-				<option value="file1">github.com/konoui/go-qsort/qsort.go (96.3%)</option>
+				<option value="file1">github.com/konoui/go-qsort/qsort.go (96.9%)</option>
+				
+				<option value="file2">github.com/konoui/go-qsort/utils.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -73,10 +75,7 @@
 		
 		<pre class="file" id="file0" style="display: none">package qsort
 
-import "fmt"
-
 func HeapSort[T any](list []T, cmp func(T, T) int) <span class="cov0" title="0">{
-        fmt.Printf("myheapsort is called\n")
         heapSort(list, 0, len(list), cmp)
 }</span>
 
@@ -154,46 +153,25 @@ func double(i int, j *int) int <span class="cov0" title="0">{
 		
 		<pre class="file" id="file1" style="display: none">package qsort
 
-import (
-        "fmt"
-        "io"
-        "os"
-
-        "github.com/konoui/lipo/pkg/lipo/lmacho"
-)
-
-var (
-        Out io.Writer = os.Stdout
-)
-
 // https://github.com/apple-oss-distributions/Libc/blob/Libc-1534.40.2/stdlib/FreeBSD/qsort.c
 func Slice[T any](x []T, cmpFunc func(i, j T) int) <span class="cov8" title="1">{
         qsort(x, 0, len(x), cmpFunc, depth(len(x)))
 }</span>
 
-func dump[T any](list []T, off int, num int) <span class="cov8" title="1">{
-        fmt.Fprintf(Out, "dump-----\n")
-        for i := off; i &lt; len(list); i++ </span><span class="cov8" title="1">{
-                v := any(list[i]).(lmacho.FatArchHeader)
-                fmt.Fprintf(Out, "%v\n", lmacho.ToCpuString(v.Cpu, v.SubCpu))
-        }</span>
-        <span class="cov8" title="1">fmt.Fprintf(Out, "dump-----\n")</span>
-}
-
 func qsort[T any](list []T, off int, num int, cmp func(T, T) int, depthLimit int) <span class="cov8" title="1">{
-        fmt.Fprintf(Out, "myqsort is called %d\n", depthLimit)
+        utilPrintf("myqsort is called %d\n", depthLimit)
 </span>loop:
         <span class="cov8" title="1">swapCnt := 0
-        fmt.Fprintf(Out, "num %d\n", num)
+        utilPrintf("num %d\n", num)
         if depthLimit &lt;= 0 </span><span class="cov0" title="0">{
-                fmt.Fprintf(Out, "switch to myheapsort\n")
+                utilPrintf("switch to myheapsort\n")
                 heapSort(list, off, num, cmp)
                 return
         }</span>
         <span class="cov8" title="1">depthLimit--
 
         if num &lt;= 7 </span><span class="cov8" title="1">{
-                fmt.Fprintf(Out, "switch to isort\n")
+                utilPrintf("switch to isort\n")
                 iSort(list, off, num, cmp, 0)
                 dump(list, off, num)
                 return
@@ -203,19 +181,19 @@ func qsort[T any](list []T, off int, num int, cmp func(T, T) int, depthLimit int
         pm := off + num/2
         pn := off + num - 1
 
-        if num &gt; 40 </span><span class="cov0" title="0">{
-                panic("&gt;40")</span>
-        }
-        <span class="cov8" title="1">t := any(list[pl]).(lmacho.FatArchHeader)
-        fmt.Fprintf(Out, "pl %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
-        t = any(list[pm]).(lmacho.FatArchHeader)
-        fmt.Fprintf(Out, "pm %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
-        t = any(list[pn]).(lmacho.FatArchHeader)
-        fmt.Fprintf(Out, "pn %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
+        if num &gt; 40 </span><span class="cov8" title="1">{
+                d := (num / 8)
+                pl = med3(list, pl, pl+d, pl+2*d, cmp)
+                pm = med3(list, pm-d, pm, pm+d, cmp)
+                pn = med3(list, pn-2*d, pn-d, pn, cmp)
+                utilPrintf("over 40\n")
+        }</span>
+        <span class="cov8" title="1">utilPrintf("pl %s\n", cpu(list[pl]))
+        utilPrintf("pm %s\n", cpu(list[pm]))
+        utilPrintf("pn %s\n", cpu(list[pn]))
 
         pm = med3(list, pl, pm, pn, cmp)
-        t = any(list[pm]).(lmacho.FatArchHeader)
-        fmt.Fprintf(Out, "med3 pm %s\n", lmacho.ToCpuString(t.Cpu, t.SubCpu))
+        utilPrintf("med3 pm %s\n", cpu(list[pm]))
 
         swap(list, off, pm)
         pa := off + 1
@@ -227,12 +205,12 @@ func qsort[T any](list []T, off int, num int, cmp func(T, T) int, depthLimit int
                         ret := cmp(list[pb], list[off])
                         if ret &lt;= 0 </span><span class="cov8" title="1">{
                                 if ret == 0 </span><span class="cov8" title="1">{
-                                        fmt.Fprintf(Out, "pb &lt;= pc cmp_result=0\n")
+                                        utilPrintf("pb &lt;= pc cmp_result=0\n")
                                         swapCnt = 1
                                         swap(list, pa, pb)
                                         pa++
                                 }</span>
-                                <span class="cov8" title="1">fmt.Fprintf(Out, "pb &lt;= pc bp++\n")
+                                <span class="cov8" title="1">utilPrintf("pb &lt;= pc bp++\n")
                                 pb++</span>
                         } else<span class="cov8" title="1"> {
                                 break</span>
@@ -242,12 +220,12 @@ func qsort[T any](list []T, off int, num int, cmp func(T, T) int, depthLimit int
                         ret := cmp(list[pc], list[off])
                         if ret &gt;= 0 </span><span class="cov8" title="1">{
                                 if ret == 0 </span><span class="cov8" title="1">{
-                                        fmt.Fprintf(Out, "pb &lt;= pc cmp_result=0\n")
+                                        utilPrintf("pb &lt;= pc cmp_result=0\n")
                                         swapCnt = 1
                                         swap(list, pc, pd)
                                         pd--
                                 }</span>
-                                <span class="cov8" title="1">fmt.Fprintf(Out, "pb &lt;= pc pc--\n")
+                                <span class="cov8" title="1">utilPrintf("pb &lt;= pc pc--\n")
                                 pc--</span>
                         } else<span class="cov8" title="1"> {
                                 break</span>
@@ -273,10 +251,10 @@ func qsort[T any](list []T, off int, num int, cmp func(T, T) int, depthLimit int
         if swapCnt == 0 </span><span class="cov8" title="1">{
                 r := 1 + num/4
                 if !iSort(list, off, num, cmp, r) </span><span class="cov8" title="1">{
-                        fmt.Fprintf(Out, "goto nevermind;\n")
+                        utilPrintf("goto nevermind;\n")
                         goto nevermind</span>
                 }
-                <span class="cov8" title="1">fmt.Fprintf(Out, "return swap_cnt=0 isort\n")
+                <span class="cov8" title="1">utilPrintf("return swap_cnt=0 isort\n")
                 return</span>
         }
 
@@ -285,23 +263,23 @@ nevermind:
         d2 := pd - pc
         if d1 &lt;= d2 </span><span class="cov8" title="1">{
                 if d1 &gt; 1 </span><span class="cov8" title="1">{
-                        fmt.Fprintf(Out, "d1 &gt; 1 do qsort\n")
+                        utilPrintf("d1 &gt; 1 do qsort\n")
                         qsort(list, off, d1, cmp, depthLimit)
                 }</span>
                 <span class="cov8" title="1">if d2 &gt; 1 </span><span class="cov8" title="1">{
                         off = pn - d2
                         num = d2
-                        fmt.Fprintf(Out, "d2 &gt; 1 goto loop\n")
+                        utilPrintf("d2 &gt; 1 goto loop\n")
                         goto loop</span>
                 }
         } else<span class="cov8" title="1"> {
                 if d2 &gt; 1 </span><span class="cov8" title="1">{
-                        fmt.Fprintf(Out, "d2 &gt; 1 do qsort\n")
+                        utilPrintf("d2 &gt; 1 do qsort\n")
                         qsort(list, pn-d2, d2, cmp, depthLimit)
                 }</span>
                 <span class="cov8" title="1">if d1 &gt; 1 </span><span class="cov8" title="1">{
                         num = d1
-                        fmt.Fprintf(Out, "d1 &gt; 1 goto loop\n")
+                        utilPrintf("d1 &gt; 1 goto loop\n")
                         goto loop</span>
                 }
         }
@@ -383,6 +361,43 @@ func iSort[T any](list []T, off int, len int, cmp func(a, b T) int, swapLimit in
 
         <span class="cov8" title="1">return true</span>
 }
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package qsort
+
+import (
+        "fmt"
+        "io"
+        "os"
+
+        "github.com/konoui/lipo/pkg/lipo/lmacho"
+)
+
+var (
+        Out io.Writer = os.Stdout
+)
+
+func utilPrintf(format string, a ...any) <span class="cov8" title="1">{
+        fmt.Fprintf(Out, format, a...)
+}</span>
+
+func dump[T any](list []T, off int, num int) <span class="cov8" title="1">{
+        fmt.Fprintf(Out, "dump-----\n")
+        for i := off; i &lt; len(list); i++ </span><span class="cov8" title="1">{
+                v := any(list[i]).(lmacho.FatArchHeader)
+                fmt.Fprintf(Out, "%v\n", lmacho.ToCpuString(v.Cpu, v.SubCpu))
+        }</span>
+        <span class="cov8" title="1">fmt.Fprintf(Out, "dump-----\n")</span>
+}
+
+func cast[T any](v T) lmacho.FatArchHeader <span class="cov8" title="1">{
+        return any(v).(lmacho.FatArchHeader)
+}</span>
+
+func cpu[T any](v T) string <span class="cov8" title="1">{
+        f := cast(v)
+        return lmacho.ToCpuString(f.Cpu, f.SubCpu)
+}</span>
 </pre>
 		
 		</div>
