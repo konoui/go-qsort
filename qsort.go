@@ -20,7 +20,7 @@ loop:
 	if num <= 7 {
 		utilPrintf("switch to isort\n")
 		iSort(list, off, num, cmp, 0)
-		dump(list, off, num)
+		utilDump(list, off, num)
 		return
 	}
 

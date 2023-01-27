@@ -16,7 +16,7 @@ func utilPrintf(format string, a ...any) {
 	fmt.Fprintf(Out, format, a...)
 }
 
-func dump[T any](list []T, off int, num int) {
+func utilDump[T any](list []T, off int, num int) {
 	fmt.Fprintf(Out, "dump-----\n")
 	for i := off; i < len(list); i++ {
 		v := any(list[i]).(lmacho.FatArchHeader)
